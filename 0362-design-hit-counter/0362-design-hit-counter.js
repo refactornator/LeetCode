@@ -1,6 +1,7 @@
 
 var HitCounter = function() {
-  this.hits = new Array().fill(0);
+  this.timestamps = new Array(300).fill(0);  // array to store timestamps
+  this.hits = new Array(300).fill(0);        // array to store hit counts for corresponding timestamps
 };
 
 /** 
@@ -8,7 +9,15 @@ var HitCounter = function() {
  * @return {void}
  */
 HitCounter.prototype.hit = function(timestamp) {
-  this.hits[timestamp] = (this.hits[timestamp] || 0) + 1;
+  let index = timestamp % 300;
+  if (this.timestamps[index] !== timestamp) {
+    // if the current timestamp is different from the recorded one (older than 300s), reset the hit count
+    this.timestamps[index] = timestamp;
+    this.hits[index] = 1;
+  } else {
+    // if the current timestamp is the same, just increment the hit count
+    this.hits[index]++;
+  }
 };
 
 /** 
@@ -16,12 +25,14 @@ HitCounter.prototype.hit = function(timestamp) {
  * @return {number}
  */
 HitCounter.prototype.getHits = function(timestamp) {
-  let sum = 0;
-  for (let i = timestamp; i > 0 && i > timestamp - 300; i--) {
-    const value = (this.hits[i] || 0);
-    sum += value;
+  let total = 0;
+  for (let i = 0; i < 300; i++) {
+    // only sum up the counts of hits that happened in the last 300 seconds
+    if (timestamp - this.timestamps[i] < 300) {
+      total += this.hits[i];
+    }
   }
-  return sum;
+  return total;
 };
 
 /** 
