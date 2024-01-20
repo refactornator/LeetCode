@@ -20,4 +20,3 @@ var addTwoNumbers = function(l1, l2) {
 
   return iterator(l1, l2)
 };
-
